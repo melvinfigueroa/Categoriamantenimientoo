@@ -103,4 +103,3 @@ async function buscar() {
     console.log("Registro encontrado:", data[0]);
 
 }
-}
