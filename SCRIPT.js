@@ -1,29 +1,28 @@
 // 1. Tus credenciales
-const supabaseUrl = 'https://naookbfozaqhfuzljzoh.supabase.co';
-const supabaseKey = 'sb_publishable_RS7KswDeUEE7goFwlLqbMg_XYE2orcu';
+const supabaseUrl = 'https://naookbfozaqhfuzljzoh.supabase.co'
+const supabaseKey = 'sb_publishable_RS7KswDeUEE7goFwlLqbMg_XYE2orcu'
 
 // 2. Creamos el cliente UNA SOLA VEZ y de forma global
 let supabaseClient = null;
 
-// 3. Esperamos a que el HTML esté cargado antes de buscar los botones
+// 3. Esperamos a que el HTML esté cargado antes de buscar el botón
 document.addEventListener('DOMContentLoaded', () => {
     
     // Asignamos el evento click al botón CONECTAR
     const btnConectar = document.getElementById('btnConectar');
+    
     if (btnConectar) {
         btnConectar.addEventListener('click', conectarSupabase);
     } else {
         console.error("No se encontró el botón btnConectar en el HTML");
     }
-
-    // Asignamos el evento click al botón BUSCAR (Corregido: movido dentro de DOMContentLoaded)
-    const btnBuscar = document.getElementById('btnBuscar');
+});
+const btnBuscar = document.getElementById('btnBuscar');
     if (btnBuscar) {
         btnBuscar.addEventListener('click', buscarCategoria);
     } else {
         console.error("No se encontró el botón btnBuscar en el HTML");
     }
-});
 
 // 4. Función que se ejecuta al hacer clic en CONECTAR
 function conectarSupabase() {
@@ -41,9 +40,6 @@ function conectarSupabase() {
         alert("ERROR DE CONEXIÓN");
         console.error("Detalles del error:", error);
     }
-} // Corregido: llave de cierre que faltaba
-
-// 5. Función para buscar categoría
 async function buscarCategoria() {
     // 1. Verificar que el cliente esté conectado
     if (!supabaseClient) {
@@ -70,8 +66,7 @@ async function buscarCategoria() {
             query = query.eq('id_categoria', id);
         }
         if (nombre) {
-            // Corregido: se añadieron las comillas invertidas y la sintaxis correcta del string template de JS
-            query = query.ilike('nombre', `%${nombre}%`); 
+            query = query.ilike('nombre', %${nombre}%); // 'nombre' es el campo real en Supabase
         }
 
         // 6. Ejecutar la consulta
@@ -90,8 +85,7 @@ async function buscarCategoria() {
         document.getElementById('nombre_categoria').value = data[0].nombre;
         document.getElementById('estado').value = data[0].estado;
 
-        // Corregido: sintaxis de comillas invertidas para el alert dinámico
-        alert(`✅ Se encontraron ${data.length} resultado(s).`);
+        alert(✅ Se encontraron ${data.length} resultado(s).);
 
     } catch (error) {
         alert("Error al buscar ❌: " + error.message);
