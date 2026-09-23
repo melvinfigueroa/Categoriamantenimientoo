@@ -1,99 +1,171 @@
 // 1. Tus credenciales
-const supabaseUrl = 'https://naookbfozaqhfuzljzoh.supabase.co'
-const supabaseKey = 'sb_publishable_RS7KswDeUEE7goFwlLqbMg_XYE2orcu'
+const supabaseUrl = 'https://naookbfozaqhfuzljzoh.supabase.co';
+const supabaseKey = 'sb_publishable_RS7KswDeUEE7goFwlLqbMg_XYE2orcu';
 
-// 2. Creamos el cliente UNA SOLA VEZ y de forma global
+// 2. Crear el cliente una sola vez
 let supabaseClient = null;
 
-// 3. Esperamos a que el HTML esté cargado antes de buscar el botón
+
+// 3. Esperar a que cargue el HTML
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // Asignamos el evento click al botón CONECTAR
+
+    // BOTÓN CONECTAR
     const btnConectar = document.getElementById('btnConectar');
-    
+
     if (btnConectar) {
         btnConectar.addEventListener('click', conectarSupabase);
     } else {
-        console.error("No se encontró el botón btnConectar en el HTML");
-}
+        console.error("No se encontró el botón btnConectar");
+    }
 
 
-//Asignamos el evento clic al botón BUSCAR
-const btnBuscar = document.getElementById('btnBuscar');
+    // BOTÓN BUSCAR
+    const btnBuscar = document.getElementById('btnBuscar');
+
     if (btnBuscar) {
         btnBuscar.addEventListener('click', buscarCategoria);
     } else {
-        console.error("No se encontró el botón btnBuscar en el HTML");
-        }  
-    });
-
-// 4. Función que se ejecuta al hacer clic en CONECTAR
-function conectarSupabase() {
-    try {
-        // Si aún no se ha creado el cliente, lo creamos
-        if (!supabaseClient) {
-            supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-        }
-        
-        // Si se crea correctamente, mostramos el mensaje
-        alert("CONEXIÓN EXITOSA");
-        console.log("Cliente Supabase inicializado correctamente:", supabaseClient);
-        
-    } catch (error) {
-        alert("ERROR DE CONEXIÓN");
-        console.error("Detalles del error:", error);
+        console.error("No se encontró el botón btnBuscar");
     }
+
+});
+
+
+// 4. CONECTAR CON SUPABASE
+function conectarSupabase() {
+
+    try {
+
+        if (!supabaseClient) {
+
+            supabaseClient = supabase.createClient(
+                supabaseUrl,
+                supabaseKey
+            );
+
+        }
+
+        alert("CONEXIÓN EXITOSA");
+
+        console.log(
+            "Cliente Supabase conectado:",
+            supabaseClient
+        );
+
+    } catch (error) {
+
+        alert("ERROR DE CONEXIÓN");
+
+        console.error(
+            "Detalles del error:",
+            error
+        );
+
+    }
+
 }
 
+
+// 5. BUSCAR CATEGORÍA POR NÚMERO
 async function buscarCategoria() {
-    // 1. Verificar que el cliente esté conectado
+
+    // Verificar conexión
     if (!supabaseClient) {
+
         alert("Primero debes conectarte 🔌");
+
         return;
     }
 
-    // 2. Obtener los valores del formulario
-    const id = document.getElementById('id_categoria').value.trim();
-    const nombre = document.getElementById('nombre_categoria').value.trim();
 
-    // 3. Validar que al menos uno esté lleno
-    if (!id && !nombre) {
-        alert("Ingresa un ID o un Nombre para buscar ⚠️");
+    // Obtener el número escrito
+    const numero = document
+        .getElementById('numero')
+        .value
+        .trim();
+
+
+    // Verificar que haya un número
+    if (!numero) {
+
+        alert("Ingresa un número para buscar ⚠️");
+
         return;
     }
+
 
     try {
-        // 4. Construir la consulta base
-        let query = supabaseClient.from('categorias').select('*');
 
-        // 5. Filtrar según lo que el usuario escribió
-        if (id) {
-            query = query.eq('id_categoria', id);
-        }
-        if (nombre) {
-            query = query.ilike('nombre', '%${nombre}%'); // 'nombre' es el campo real en Supabase
-        }
+        // Consulta a la tabla categorias
+        let query = supabaseClient
+            .from('categorias')
+            .select('*');
 
-        // 6. Ejecutar la consulta
+
+        // BUSCAR POR EL CAMPO numero
+        query = query.eq('numero', numero);
+
+
+        // Ejecutar consulta
         const { data, error } = await query;
 
-        if (error) throw error;
 
-        // 7. Si no hay resultados
+        // Verificar error
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        // Si no encontró resultados
         if (!data || data.length === 0) {
+
             alert("No se encontró ninguna categoría ❌");
+
             return;
         }
 
-        // 8. Mostrar el primer resultado en el formulario
-        document.getElementById('id_categoria').value = data[0].id_categoria;
-        document.getElementById('nombre_categoria').value = data[0].nombre;
-        document.getElementById('estado').value = data[0].estado;
 
-        alert('✅ Se encontraron ${data.length} resultado(s).');
+        // Mostrar los datos encontrados
+        document.getElementById('numero').value =
+            data[0].numero;
+
+
+        document.getElementById('id_categoria').value =
+            data[0].id_categoria;
+
+
+        document.getElementById('nombre_categoria').value =
+            data[0].nombre;
+
+
+        document.getElementById('estado').value =
+            data[0].estado;
+
+
+        // Mensaje
+        alert("✅ Categoría encontrada");
+
+
+        console.log(
+            "Categoría encontrada:",
+            data[0]
+        );
+
 
     } catch (error) {
-        alert("Error al buscar ❌: " + error.message);
-        console.error("Detalle del error:", error);
+
+        alert(
+            "Error al buscar ❌: " +
+            error.message
+        );
+
+        console.error(
+            "Detalle del error:",
+            error
+        );
+
     }
+
 }
