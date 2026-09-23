@@ -48,18 +48,8 @@ async function buscarCategoria() {
     }
 
     // 2. Obtener los valores del formulario
-    const inputId = document.getElementById('id_categoria');
-    const inputNombre = document.getElementById('nombre_categoria');
-    const inputEstado = document.getElementById('estado');
-
-    if (!inputId || !inputNombre || !inputEstado) {
-        console.error("Error: Uno o más inputs no se encontraron en el HTML. Revisa los IDs.");
-        alert("Error de estructura en el formulario HTML ⚠️");
-        return;
-    }
-
-    const id = inputId.value.trim();
-    const nombre = inputNombre.value.trim();
+    const id = document.getElementById('id_categoria').value.trim();
+    const nombre = document.getElementById('nombre_categoria').value.trim();
 
     // 3. Validar que al menos uno esté lleno
     if (!id && !nombre) {
@@ -74,8 +64,9 @@ async function buscarCategoria() {
         // 5. Filtrar según lo que el usuario escribió
         if (id) {
             query = query.eq('id_categoria', id);
-        } else if (nombre) {
-            query = query.ilike('nombre', `%${nombre}%`); 
+        }
+        if (nombre) {
+            query = query.ilike('nombre', %${nombre}%); // 'nombre' es el campo real en Supabase
         }
 
         // 6. Ejecutar la consulta
@@ -89,12 +80,12 @@ async function buscarCategoria() {
             return;
         }
 
-        // 8. CORREGIDO: Asignar el primer resultado usando el índice [0]
-        inputId.value = data[0].id_categoria;
-        inputNombre.value = data[0].nombre; // Asegúrate de que en tu tabla de Supabase la columna se llame 'nombre'
-        inputEstado.value = data[0].estado; // Asegúrate de que en tu tabla de Supabase la columna se llame 'estado'
+        // 8. Mostrar el primer resultado en el formulario
+        document.getElementById('id_categoria').value = data[0].id_categoria;
+        document.getElementById('nombre_categoria').value = data[0].nombre;
+        document.getElementById('estado').value = data[0].estado;
 
-        alert(`✅ Se encontraron ${data.length} resultado(s).`);
+        alert(✅ Se encontraron ${data.length} resultado(s).);
 
     } catch (error) {
         alert("Error al buscar ❌: " + error.message);
