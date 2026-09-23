@@ -1,23 +1,18 @@
-// 1. Credenciales de Supabase
 const supabaseUrl = 'https://naookbfozaqhfuzljzoh.supabase.co';
 const supabaseKey = 'sb_publishable_RS7KswDeUEE7goFwlLqbMg_XYE2orcu';
 
-// 2. Cliente de Supabase
-let supabaseClient = null;
+let supabaseClient;
 
 
-// 3. Cargar cuando el HTML esté listo
-document.addEventListener('DOMContentLoaded', () => {
+// INICIAR
+document.addEventListener('DOMContentLoaded', function () {
 
-    // Botón CONECTAR
     const btnConectar = document.getElementById('btnConectar');
+    const btnBuscar = document.getElementById('btnBuscar');
 
     if (btnConectar) {
         btnConectar.addEventListener('click', conectarSupabase);
     }
-
-    // Botón BUSCAR
-    const btnBuscar = document.getElementById('btnBuscar');
 
     if (btnBuscar) {
         btnBuscar.addEventListener('click', buscarCategoria);
@@ -26,114 +21,114 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// 4. CONECTAR CON SUPABASE
+// CONECTAR
 function conectarSupabase() {
 
     try {
 
-        if (!supabaseClient) {
+        supabaseClient = supabase.createClient(
+            supabaseUrl,
+            supabaseKey
+        );
 
-            supabaseClient = supabase.createClient(
-                supabaseUrl,
-                supabaseKey
-            );
+        alert('CONEXIÓN EXITOSA');
 
-        }
-
-        alert("CONEXIÓN EXITOSA");
-
-        console.log("Supabase conectado correctamente");
+        console.log('Supabase conectado');
 
     } catch (error) {
 
-        alert("ERROR DE CONEXIÓN");
-
         console.error(error);
+
+        alert('ERROR: ' + error.message);
 
     }
 
 }
 
 
-// 5. BUSCAR CATEGORÍA POR ID
+// BUSCAR
 async function buscarCategoria() {
 
-    // Verificar conexión
+    console.log('Botón BUSCAR presionado');
+
     if (!supabaseClient) {
 
-        alert("Primero debes conectarte 🔌");
+        alert('Primero presiona CONECTAR');
 
         return;
 
     }
 
 
-    // Obtener el número escrito
-    const id = document
-        .getElementById('id_categoria')
-        .value
-        .trim();
+    const campoID = document.getElementById('id_categoria');
 
+    if (!campoID) {
 
-    // Verificar que se haya escrito
-    if (!id) {
-
-        alert("Ingresa el número de la categoría ⚠️");
+        alert('No existe el campo id_categoria en el HTML');
 
         return;
 
     }
+
+
+    const id = campoID.value.trim();
+
+
+    if (id === '') {
+
+        alert('Escribe el número de la categoría');
+
+        return;
+
+    }
+
+
+    console.log('ID que se está buscando:', id);
 
 
     try {
 
-        // Buscar en la tabla categorias
         const { data, error } = await supabaseClient
             .from('categorias')
             .select('*')
-            .eq('id_categoria', id);
+            .eq('id_categoria', Number(id))
+            .single();
 
 
-        // Verificar error
         if (error) {
 
-            throw error;
+            console.error('ERROR SUPABASE:', error);
 
-        }
-
-
-        // Si no encontró
-        if (!data || data.length === 0) {
-
-            alert("No se encontró la categoría ❌");
+            alert('No se encontró la categoría: ' + error.message);
 
             return;
 
         }
 
 
-        // Mostrar los datos encontrados
+        console.log('CATEGORÍA ENCONTRADA:', data);
+
+
+        // MOSTRAR RESULTADOS
+
         document.getElementById('id_categoria').value =
-            data[0].id_categoria;
+            data.id_categoria;
 
         document.getElementById('nombre_categoria').value =
-            data[0].nombre;
+            data.nombre;
 
         document.getElementById('estado').value =
-            data[0].estado;
+            data.estado;
 
 
-        alert("✅ Categoría encontrada");
-
-
-        console.log("Datos encontrados:", data[0]);
+        alert('✅ CATEGORÍA ENCONTRADA');
 
 
     } catch (error) {
 
-        alert("Error al buscar: " + error.message);
+        console.error(error);
 
-        console.error("Error:", error);
+        alert('ERROR: ' + error.message);
 
     }
 
