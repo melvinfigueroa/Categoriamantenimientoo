@@ -1,31 +1,29 @@
 // 1. Tus credenciales
-const supabaseUrl = 'https://naookbfozaqhfuzljzoh.supabase.co'
-const supabaseKey = 'sb_publishable_RS7KswDeUEE7goFwlLqbMg_XYE2orcu'
+const supabaseUrl = 'https://supabase.co';
+const supabaseKey = 'sb_publishable_RS7KswDeUEE7goFwlLqbMg_XYE2orcu';
 
 // 2. Creamos el cliente UNA SOLA VEZ y de forma global
 let supabaseClient = null;
 
-// 3. Esperamos a que el HTML esté cargado antes de buscar el botón
+// 3. Esperamos a que el HTML esté cargado antes de buscar los botones
 document.addEventListener('DOMContentLoaded', () => {
     
     // Asignamos el evento click al botón CONECTAR
     const btnConectar = document.getElementById('btnConectar');
-    
     if (btnConectar) {
         btnConectar.addEventListener('click', conectarSupabase);
     } else {
         console.error("No se encontró el botón btnConectar en el HTML");
-}
+    }
 
-
-//Asignamos el evento clic al botón BUSCAR
-const btnBuscar = document.getElementById('btnBuscar');
+    // Asignamos el evento click al botón BUSCAR
+    const btnBuscar = document.getElementById('btnBuscar');
     if (btnBuscar) {
         btnBuscar.addEventListener('click', buscarCategoria);
     } else {
         console.error("No se encontró el botón btnBuscar en el HTML");
-        }  
-    });
+    }  
+});
 
 // 4. Función que se ejecuta al hacer clic en CONECTAR
 function conectarSupabase() {
@@ -45,52 +43,55 @@ function conectarSupabase() {
     }
 }
 
+// 5. Función que se ejecuta al hacer clic en BUSCAR
 async function buscarCategoria() {
-    // 1. Verificar que el cliente esté conectado
+    // Verificar que el cliente esté conectado
     if (!supabaseClient) {
         alert("Primero debes conectarte 🔌");
         return;
     }
 
-    // 2. Obtener los valores del formulario
-    const id = document.getElementById('id_categoria').value.trim();
-    const nombre = document.getElementById('nombre_categoria').value.trim();
+    // Obtener los valores del formulario
+    const idInput = document.getElementById('id_categoria').value.trim();
+    const nombreInput = document.getElementById('nombre_categoria').value.trim();
 
-    // 3. Validar que al menos uno esté lleno
-    if (!id && !nombre) {
+    // Validar que al menos uno esté lleno
+    if (!idInput && !nombreInput) {
         alert("Ingresa un ID o un Nombre para buscar ⚠️");
         return;
     }
 
     try {
-        // 4. Construir la consulta base
+        // Construir la consulta base en la tabla 'categorias'
         let query = supabaseClient.from('categorias').select('*');
 
-        // 5. Filtrar según lo que el usuario escribió
-        if (id) {
-            query = query.eq('id_categoria', id);
+        // Filtrar según lo que el usuario escribió
+        if (idInput) {
+            query = query.eq('id_categoria', idInput);
         }
-        if (nombre) {
-            query = query.ilike('nombre', '%${nombre}%'); // 'nombre' es el campo real en Supabase
+        if (nombreInput) {
+            query = query.ilike('nombre', `%${nombreInput}%`); 
         }
 
-        // 6. Ejecutar la consulta
+        // Ejecutar la consulta en Supabase
         const { data, error } = await query;
 
         if (error) throw error;
 
-        // 7. Si no hay resultados
+        console.log("Datos recibidos de Supabase:", data);
+
+        // Si el arreglo regresa vacío, significa que el registro no existe
         if (!data || data.length === 0) {
-            alert("No se encontró ninguna categoría ❌");
+            alert("No se encontró ese número");
             return;
         }
 
-        // 8. Mostrar el primer resultado en el formulario
+        // ASIGNACIÓN SEGURO: Acceder al primer elemento del arreglo con [0]
         document.getElementById('id_categoria').value = data[0].id_categoria;
         document.getElementById('nombre_categoria').value = data[0].nombre;
         document.getElementById('estado').value = data[0].estado;
 
-        alert('✅ Se encontraron ${data.length} resultado(s).');
+        alert(`✅ Se encontraron ${data.length} resultado(s).`);
 
     } catch (error) {
         alert("Error al buscar ❌: " + error.message);
