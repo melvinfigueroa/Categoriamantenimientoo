@@ -46,54 +46,32 @@ function conectarSupabase() {
 }
 
 async function buscarCategoria() {
-    // 1. Verificar que el cliente esté conectado
-    if (!supabaseClient) {
-        alert("Primero debes conectarte 🔌");
+
+    const numero = document.getElementById("id_categoria").value.trim();
+
+    if (numero === "") {
+        alert("Escribe el número");
         return;
     }
 
-    // 2. Obtener los valores del formulario
-    const id = document.getElementById('id_categoria').value.trim();
-    const nombre = document.getElementById('nombre_categoria').value.trim();
+    const { data, error } = await supabaseClient
+        .from("categorias")
+        .select("*")
+        .eq("id_categoria", numero);
 
-    // 3. Validar que al menos uno esté lleno
-    if (!id && !nombre) {
-        alert("Ingresa un ID o un Nombre para buscar ⚠️");
+    if (error) {
+        alert("Error: " + error.message);
+        console.error(error);
         return;
     }
 
-    try {
-        // 4. Construir la consulta base
-        let query = supabaseClient.from('categorias').select('*');
-
-        // 5. Filtrar según lo que el usuario escribió
-        if (id) {
-            query = query.eq('id_categoria', id);
-        }
-        if (nombre) {
-            query = query.ilike('nombre', '%${nombre}%'); // 'nombre' es el campo real en Supabase
-        }
-
-        // 6. Ejecutar la consulta
-        const { data, error } = await query;
-
-        if (error) throw error;
-
-        // 7. Si no hay resultados
-        if (!data || data.length === 0) {
-            alert("No se encontró ninguna categoría ❌");
-            return;
-        }
-
-        // 8. Mostrar el primer resultado en el formulario
-        document.getElementById('id_categoria').value = data[0].id_categoria;
-        document.getElementById('nombre_categoria').value = data[0].nombre;
-        document.getElementById('estado').value = data[0].estado;
-
-        alert('✅ Se encontraron ${data.length} resultado(s).');
-
-    } catch (error) {
-        alert("Error al buscar ❌: " + error.message);
-        console.error("Detalle del error:", error);
+    if (data.length === 0) {
+        alert("No existe ese número");
+        return;
     }
+
+    document.getElementById("nombre_categoria").value = data[0].nombre;
+    document.getElementById("estado").value = data[0].estado;
+
+    alert("Registro encontrado");
 }
