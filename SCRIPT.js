@@ -1,5 +1,5 @@
 // 1. Tus credenciales
-const supabaseUrl = 'https://supabase.co';
+const supabaseUrl = 'https://naookbfozaqhfuzljzoh.supabase.co';
 const supabaseKey = 'sb_publishable_RS7KswDeUEE7goFwlLqbMg_XYE2orcu';
 
 // 2. Creamos el cliente UNA SOLA VEZ y de forma global
